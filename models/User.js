@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 
 
 const userSchema = new mongoose.Schema({
-    username: {type: String, required: true},
-    password: {type: String, }
+    username: {type: String, required: true, minlength: [3, 'Username must be at leat 3 characters long']},
+    password: {type: String, required: true, minlength: [4, 'Username must be at leat 4 characters long']},
+    address: {type: String, required: true, minlength: [20, 'Address must be at leat 20 characters long']},
+    publications: []
 });
 
 userSchema.index({ username: 1 }, {
