@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     }},
     certificate: {type: String, enum: ['Yes', 'No'], required: true},
     author: {type: mongoose.Types.ObjectId, ref: 'User'},
-    shared: []
+    shared: [{type: mongoose.Types.ObjectId, ref: 'User'}]
 });
 
 
