@@ -15,11 +15,13 @@ router.post('/register', isGuest(), async (req, res) => {
     try {
         if(req.body.password == ''){
             throw new Error('Password is required!');
+        }else if(req.body.password.length < 4){
+            throw new Error('Password must be more than 3 characters')
         }else if(req.body.password != req.body.rePass){
             throw new Error('Password\'s must be equals');
         };
 
-        const user = await register(req.body.username, req.body.password);
+        const user = await register(req.body.username, req.body.password, req.body.address);
 
         req.session.user = user;
 
@@ -29,7 +31,7 @@ router.post('/register', isGuest(), async (req, res) => {
         
         const errors = mapErrors(error);
 
-        res.render('register', { data: { username: req.body.username }, errors});
+        res.render('register', { data: { username: req.body.username, address: req.body.address }, errors});
     }
    
    

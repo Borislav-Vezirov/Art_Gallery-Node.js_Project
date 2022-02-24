@@ -1,7 +1,7 @@
 const User = require('../models/User.js');
 const { hash, compare } = require('bcrypt');
 
-async function register( username, password ){
+async function register( username, password, address ){
 
     const existing = await getUserByUsername(username);
 
@@ -13,7 +13,8 @@ async function register( username, password ){
 
     const user = new User({
         username,
-        password: hashedPassword
+        password: hashedPassword,
+        address
     });
 
     await user.save();
@@ -32,7 +33,7 @@ async function login(username, password){
     const hasMatch = await compare(password, user.password);
 
     if(!hasMatch){
-        throw new Error('Incorrect password')
+        throw new Error('Username or password are invalid')
     };
 
     return user;
