@@ -1,5 +1,4 @@
 const { isUser } = require('../middlewares/guards.js');
-const { createPost } = require('../services/publicationServices.js');
 const { createPost, getOneById, getOneAndUpdate, deletePost, share } = require('../services/publicationServices.js');
 const mapErrors = require('../utils/mappers.js');
 
@@ -26,7 +25,6 @@ router.post('/create', isUser(), async (req, res) => {
 
     try {
         
-        await createPost(post);
         await createPost(post, req.session.user.username);
 
         res.redirect('/gallery');
@@ -98,4 +96,25 @@ router.get('/delete/:id', isUser(), async (req, res) => {
         res.render('details', { errors });
     }
 });
+
+router.get('/share/:id', isUser(), async (req, res) => {
+    
+    const id    = req.params.id;
+
+    try {
+        
+        await share(id, req.session.user._id);
+
+        res.redirect('/details/' + id);
+
+    } catch (error) {
+
+        const errors = mapErrors(error);
+        res.render('details', { errors });
+
+    };
+});
+
+
+
 module.exports = router; 

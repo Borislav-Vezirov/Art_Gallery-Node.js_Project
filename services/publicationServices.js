@@ -42,7 +42,18 @@ async function deletePost(id){
     return await Publication.findOneAndDelete({_id: id});
 };
 
+async function share(postId, userId){
 
+    const post = await Publication.findById(postId);
+    
+    if(post !== undefined && post.shared.includes(userId)){
+        throw new Error('You already share!')
+    };
+
+    post.shared.push(userId);
+
+    await post.save();
+};
 
 
 module.exports = {
