@@ -1,5 +1,6 @@
 const { isUser } = require('../middlewares/guards.js');
 const { createPost } = require('../services/publicationServices.js');
+const { createPost, getOneById, getOneAndUpdate, deletePost, share } = require('../services/publicationServices.js');
 const mapErrors = require('../utils/mappers.js');
 
 const router = require('express').Router();
@@ -26,6 +27,7 @@ router.post('/create', isUser(), async (req, res) => {
     try {
         
         await createPost(post);
+        await createPost(post, req.session.user.username);
 
         res.redirect('/gallery');
 
@@ -37,5 +39,41 @@ router.post('/create', isUser(), async (req, res) => {
     }
 });
 
+router.get('/edit/:id', isUser(), async (req, res) => {
+    
+    const id = req.params.id;
+
+    const post = await getOneById(id);
+
+    if(req.session.user._id != post.author._id){
+
+        return res.redirect('/login');
+    };
+ 
+
+    res.render('edit', { title: 'Edit Page', post })
+});
+
+router.post('/edit/:id', isUser(), async (req, res) => {
+    
+    const id = req.params.id;
+
+    const existing = await getOneById(id);
+
+    if(req.session.user._id != existing.author._id){
+
+        return res.redirect('/login');
+    };
+
+    try {
+        const post = await getOneAndUpdate(id, req.body);
+        res.redirect('/details/' + id);
+        
+    } catch (error) {
+        const errors = mapErrors(error);
+        res.render('edit', { title: 'Edit Page', errors});
+        
+    }
+});
 
 module.exports = router; 
