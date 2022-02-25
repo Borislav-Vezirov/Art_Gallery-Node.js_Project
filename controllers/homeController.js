@@ -1,9 +1,18 @@
-const { getAllPost } = require('../services/publicationServices.js');
+const { isUser } = require('../middlewares/guards.js');
+const { getAllPost, getOneById, getPostsByAuthor, getSharedPosts } = require('../services/publicationServices.js');
 
 const router = require('express').Router();
 
-router.get('/', (req, res) => {
-    res.render('home');
+router.get('/', async (req, res) => {
+
+    const posts = await getAllPost();
+
+    posts.forEach(x => {
+        
+        x.numberOfShared = x.shared.length
+    });
+
+    res.render('home', { title: 'Home Page' , posts});
 });
 
 router.get('/gallery', async (req, res) => {
@@ -13,38 +22,42 @@ router.get('/gallery', async (req, res) => {
     res.render('gallery', { title: 'Catalog Page' , posts});
 });
 
-// router.get('/catalog/details/:id', async (req, res) => {
 
-//     const id = req.params.id;
+router.get('/details/:id', async (req, res) => {
 
-//     const post = await getOneById(id);
+    const id = req.params.id;
 
-//     if(req.session.user){
+    const post = await getOneById(id);
 
-//         post.hasUser = true;
+    if(req.session.user){
 
-//         if(req.session.user._id == post.author._id){
+        post.hasUser = true;
 
-//             post.isAuthor = true;
-//         }else{
+        if(req.session.user._id == post.author._id){
 
-//             post.isVoted = post.votes.find(x => x._id == req.session.user._id) != undefined;
+            post.isAuthor = true;
+        }else{
 
-//         };
-//     };
+            post.isShared = post.shared.find(x => x._id == req.session.user._id) != undefined;
 
-//     console.log(post);
+        };
+    };
 
-//     res.render('details', { title: 'Details Page', ...post });
-// });
+    res.render('details', { title: 'Details Page', post });
+});
 
 
-// router.get('/profile', isUser(), async (req, res) => {
+router.get('/profile', isUser(), async (req, res) => {
     
-    
-//     const posts =  await getPostsByAuthor(req.session.user._id);
+    const user = req.session.user;
 
-//     res.render('profile', { title: 'Profile Page' , posts});
-// });
+    const posts = (await getPostsByAuthor(user._id)).map(x => x.title).join(', ');
+
+    const sharedPostTitles = (await getSharedPosts(user._id)).map(x => x.title).join(', ');
+
+    res.render('profile', { title: 'Profile Page' , posts, user, sharedPostTitles});
+});
+
+
 
 module.exports = router;

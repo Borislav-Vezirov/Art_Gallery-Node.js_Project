@@ -1,15 +1,11 @@
 const Publication = require("../models/Publication.js");
 const { getUserByUsername } = require("./userServices.js");
 
-async function createPost(post){
 
-    const result = new Publication(post);
 async function createPost(post, username){
 
-    await result.save();
     const createdPost = new Publication(post);
 
-    return result;
     const user = await getUserByUsername(username);
 
     user.publications.push(createdPost._id);
@@ -56,10 +52,24 @@ async function share(postId, userId){
 };
 
 
+async function getPostsByAuthor(userId){
+
+    return Publication.find({author: userId}).lean();
+};
+
+async function getSharedPosts(userId){
+
+    return Publication.find({shared: userId}).lean();
+};
+
+
 module.exports = {
     createPost,
-    getAllPost
     getAllPost,
     getOneById,
     getOneAndUpdate,
+    deletePost,
+    share,
+    getPostsByAuthor,
+    getSharedPosts
 };
