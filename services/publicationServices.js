@@ -37,6 +37,10 @@ async function getOneAndUpdate(id, post){
 
 };
 
+async function deletePost(id){
+
+    return await Publication.findOneAndDelete({_id: id});
+};
 
 
 

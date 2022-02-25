@@ -76,4 +76,26 @@ router.post('/edit/:id', isUser(), async (req, res) => {
     }
 });
 
+router.get('/delete/:id', isUser(), async (req, res) => {
+
+    const id = req.params.id;
+
+    const existing = await getOneById(id);
+
+    if(req.session.user._id != existing.author._id){
+
+        return res.redirect('/login');
+    };
+   
+    try {
+        
+        await deletePost(id);
+
+        res.redirect('/gallery');
+
+    } catch (error) {
+        const errors = mapErrors(error);
+        res.render('details', { errors });
+    }
+});
 module.exports = router; 
